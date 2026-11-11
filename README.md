@@ -97,6 +97,8 @@ Normalbetrieb E2 = 6 (notice), bei Problemen 8 (debug).
   PHP-Notices; Status-/Alarmantworten werden auf ihr Format geprüft
 * HTTP 429 wird einmal wiederholt, Mindestabstand zwischen API-Aufrufen
 * E36 = 0 verhindert nur die periodische, nicht die einmalige Aktualisierung
+* Hinweis auf nicht unterstützte Gerätefamilien (z. B. `VOX` = Alexa-App)
+  erscheint nur einmal pro Gerät und Prozesslauf
 
 ## Lizenz
 

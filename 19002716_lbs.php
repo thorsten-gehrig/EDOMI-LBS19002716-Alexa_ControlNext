@@ -1492,6 +1492,7 @@ class AlexaControl
     protected $devices = array();
     protected $devicesBySerial = array();
     protected $selectedDeviceName = null;
+    protected $unsupportedDevicesLogged = array();
     protected $multiroomGroupName = '';
     protected $multiroomMembers = array();
     protected $bluetoothAddress = '';
@@ -1608,9 +1609,7 @@ class AlexaControl
         foreach ($payload['devices'] as $deviceData) {
             $family = isset($deviceData['deviceFamily']) ? $deviceData['deviceFamily'] : '';
             if (!in_array($family, self::$supportedFamilies, true)) {
-                acxLog($this->id, 'Geraetefamilie wird nicht unterstuetzt: ' . $family
-                    . ' (Name "' . (isset($deviceData['accountName']) ? $deviceData['accountName'] : '?')
-                    . '", Typ "' . (isset($deviceData['deviceType']) ? $deviceData['deviceType'] : '?') . '")', null, 8);
+                $this->reportUnsupportedDevice($deviceData, $family);
                 continue;
             }
             $device = AcxEchoDevice::fromApi($deviceData);
@@ -1620,6 +1619,33 @@ class AlexaControl
 
         acxLog($this->id, 'Geraeteliste gelesen: ' . count($this->devices) . ' Geraet(e)', null, 7);
         return true;
+    }
+
+    /**
+     * Meldet ein nicht unterstuetztes Geraet genau einmal pro Prozesslauf.
+     *
+     * Die Geraeteliste wird bei jeder Statusaktualisierung neu gelesen; ohne
+     * diese Merkliste wuerde dieselbe Zeile im Minutentakt im Log stehen.
+     *
+     * @param array  $deviceData
+     * @param string $family
+     */
+    protected function reportUnsupportedDevice(array $deviceData, $family)
+    {
+        $serial = isset($deviceData['serialNumber']) ? $deviceData['serialNumber'] : '';
+        $key = ($serial !== '')
+            ? $serial
+            : (isset($deviceData['accountName']) ? $deviceData['accountName'] : '?') . '/' . $family;
+
+        if (isset($this->unsupportedDevicesLogged[$key])) {
+            return;
+        }
+        $this->unsupportedDevicesLogged[$key] = true;
+
+        acxLog($this->id, 'Geraetefamilie wird nicht unterstuetzt: ' . $family
+            . ' (Name "' . (isset($deviceData['accountName']) ? $deviceData['accountName'] : '?')
+            . '", Typ "' . (isset($deviceData['deviceType']) ? $deviceData['deviceType'] : '?')
+            . '") - wird ignoriert, Meldung nur einmal pro Lauf', null, 8);
     }
 
     /**
