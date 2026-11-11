@@ -6,9 +6,8 @@ Bluetooth, Routinen, Alarme sowie Actionable Notifications über einen eigenen
 Alexa-Skill.
 
 * **LBS-Nummer:** 19002716
-* **Version:** 4.0.0 (vollständige Neuimplementierung)
+* **Version:** 4.0.0 (vollständige Neuimplementierung) als Ersatz für 19000809
 * **Datei:** `19002716_lbs.php`
-* **Basis:** EDOMI-LBS 19002716 „Alexa ControlNext v4.0.0“ aus dem KNX-User-Forum
 
 Die **Ein- und Ausgänge sind unverändert** (Nummern, Typen und Bedeutung
 identisch) – bestehende Logiken laufen ohne Anpassung weiter.
@@ -18,17 +17,15 @@ identisch) – bestehende Logiken laufen ohne Anpassung weiter.
 * zentraler HTTP-Client (eine Stelle für cURL, Cookies, Header, Timeouts)
 * getrennte Klassen für Transport (`AcxHttpClient`), Anmeldung (`AcxSession`),
   Gerät (`AcxEchoDevice`), Befehle (`AlexaControl`) und Daemon (`AcxDaemon`)
-* Eingänge werden nur noch bei Bedarf gelesen (vorher 10× pro Sekunde)
 * Login ausschließlich über Refresh-Token
 * automatische Wiederholung bei HTTP 429 (Amazon-Rate-Limit) inkl. Drosselung
-* A16/A17 (Queue-/State-Rohdaten) werden tatsächlich gefüllt
 * sofortiger Statusabruf nach dem Start (A3–A13 bleiben nicht mehr leer)
 
 ## Voraussetzungen
 
 * EDOMI mit PHP >= 5.4 und dem Paket `php-process` (posix/sysvmsg)
 * **Refresh-Token** im Eingang E57. Erzeugen z. B. mit
-  [alexa-cookie-cli](https://github.com/jonofe/alexa-cookie-cli)
+  https://github.com/adn77/alexa-cookie-cli
 * nur für Actionable Notifications (E55/E56): OAuth2-Server und die Scripte
   aus dem LBS-Archiv
 
@@ -95,11 +92,7 @@ Normalbetrieb E2 = 6 (notice), bei Problemen 8 (debug).
 
 * vollständige Neufassung mit klaren Klassen und sprechenden Namen
 * ein zentraler HTTP-Client statt ~30 kopierter cURL-Blöcke
-* Login ausschließlich über Refresh-Token (Passwort-/2FA-Login entfernt)
-* Bugfix: Multiroom-Gruppe ließ sich nie anlegen (E28 wurde als String geprüft)
-* Bugfix: Alarm-Bearbeitung nutzte teils das Alarm-Array statt der ID
-* Bugfix: A16/A17 wurden nie gefüllt
-* Bugfix: Message-Queue wurde beim Stoppen nicht entfernt
+* Login ausschließlich über Refresh-Token (kein Passwort-/2FA-Login)
 * höhere Robustheit: fehlende Geräte/Tokens führen zu Logmeldungen statt
   PHP-Notices; Status-/Alarmantworten werden auf ihr Format geprüft
 * HTTP 429 wird einmal wiederholt, Mindestabstand zwischen API-Aufrufen
